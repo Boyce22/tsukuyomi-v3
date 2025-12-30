@@ -1,0 +1,7 @@
+export enum MangaStatus {
+  ACTIVED = 'ACTIVED',
+  DISABLED = 'DISABLED',
+  REPORTED = 'REPORTED',
+  COMPLETED = 'COMPLETED',
+  HIATO = 'HIATO',
+}
