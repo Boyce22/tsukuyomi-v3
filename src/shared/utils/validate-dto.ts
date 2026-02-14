@@ -1,36 +1,17 @@
+import { ZodType } from 'zod';
 import { AppError } from '@errors';
-import { validate, ValidationError } from 'class-validator';
-import { plainToClass } from 'class-transformer';
 
+export function validateDto<T>(schema: ZodType<T>, data: unknown): T {
+  const result = schema.safeParse(data);
 
-interface ValidationErrorDetail {
-  field: string;
-  errors: string[];
-}
+  if (!result.success) {
+    const formattedErrors = result.error.issues.map((issue) => ({
+      field: issue.path.join('.'),
+      errors: [issue.message],
+    }));
 
-export async function validateDto<T extends object>(
-  dtoClass: new () => T,
-  data: any
-): Promise<T> {
-  const dtoInstance = plainToClass(dtoClass, data);
-  const errors = await validate(dtoInstance as object);
-
-  if (errors.length > 0) {
-    const formattedErrors = formatValidationErrors(errors);
-    throw new AppError(
-      'Validation failed',
-      400,
-      true,
-      formattedErrors
-    );
+    throw new AppError('Validation failed', 400, formattedErrors);
   }
 
-  return dtoInstance;
-}
-
-function formatValidationErrors(errors: ValidationError[]): ValidationErrorDetail[] {
-  return errors.map((error) => ({
-    field: error.property,
-    errors: error.constraints ? Object.values(error.constraints) : [],
-  }));
+  return result.data;
 }

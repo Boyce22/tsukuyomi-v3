@@ -75,7 +75,7 @@ class App {
 
   private rootEndpoint(_req: Request, res: Response): void {
     res.json({
-      name: env.APP_NAME || 'API',
+      name: env.NODE_ENV,
       version: '1.0.0',
       endpoints: {
         health: '/health',
@@ -92,7 +92,6 @@ class App {
       });
 
       res.status(404).json({
-        success: false,
         message: 'Route not found',
         path: req.path,
       });

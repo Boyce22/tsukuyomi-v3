@@ -3,18 +3,40 @@ import 'dotenv/config';
 import { z } from 'zod';
 
 const envSchema = z.object({
-  APP_NAME: z.string().default('api'),
-  LOG_DIR: z.string().min(1, 'LOG_DIR is required'),
-  NODE_ENV: z.enum(['development', 'production', 'test']),
-  RATE_LIMIT: z.coerce.number().int().positive('RATE_LIMIT must be a positive integer'),
-  CORS_ORIGIN: z.string().min(1, 'CORS_ORIGIN is required'),
-  PORT: z.coerce.number().int().min(1).max(65535, 'PORT must be between 1 and 65535'),
-  DB_USER: z.string().min(1, 'DB_USER is required'),
-  DB_HOST: z.string().min(1, 'DB_HOST is required'),
-  DB_PORT: z.coerce.number().int().min(1).max(65535, 'DB_PORT must be between 1 and 65535'),
-  DB_PASSWORD: z.string().min(1, 'DB_PASSWORD is required'),
-  DB_DATABASE: z.string().min(1, 'DB_DATABASE is required'),
-  DB_SCHEMA: z.string().min(1, 'DB_SCHEMA is required'),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  CORS_ORIGIN: z.string().default('*'),
+  RATE_LIMIT: z.coerce.number().int().positive().default(100),
+  LOG_DIR: z.string().default('./logs'),
+
+  DB_USER: z.string(),
+  DB_PASSWORD: z.string(),
+  DB_HOST: z.string().default('localhost'),
+  DB_PORT: z.coerce.number().int().positive().default(5432),
+  DB_DATABASE: z.string(),
+  DB_SCHEMA: z.string().default('c0'),
+
+  JWT_SECRET: z.string().min(32),
+  JWT_EXPIRES_IN: z.string().default('7d'),
+  JWT_REFRESH_SECRET: z.string().min(32),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+
+  STORAGE_PROVIDER: z.enum(['cloudinary', 's3', 'backblaze']).default('cloudinary'),
+
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+
+  AWS_REGION: z.string().optional(),
+  AWS_S3_BUCKET: z.string().optional(),
+  AWS_ACCESS_KEY_ID: z.string().optional(),
+  AWS_SECRET_ACCESS_KEY: z.string().optional(),
+
+  BACKBLAZE_KEY_ID: z.string().optional(),
+  BACKBLAZE_APP_KEY: z.string().optional(),
+  BACKBLAZE_BUCKET_ID: z.string().optional(),
+  BACKBLAZE_BUCKET_NAME: z.string().optional(),
+  BACKBLAZE_DOWNLOAD_URL: z.string().optional(),
 });
 
 const parseEnv = () => {
