@@ -5,7 +5,7 @@ import express, { Application, Request, Response } from 'express';
 
 import { env } from '@config';
 import { logger } from '@utils';
-import { errorHandler, rateLimiter, requestLogger } from '@middlewares';
+import { errorHandler, globalLimiter, requestLogger } from '@middlewares';
 
 import routes from './routes';
 
@@ -50,12 +50,12 @@ class App {
     );
 
     this.application.use(compression());
-    this.application.use(express.json({ limit: '10mb' }));
-    this.application.use(express.urlencoded({ extended: true, limit: '10mb' }));
+    this.application.use(express.json({ limit: '20kb' }));
+    this.application.use(express.urlencoded({ extended: true, limit: '20kb' }));
     this.application.use(requestLogger);
 
     if (env.NODE_ENV === 'production') {
-      this.application.use(rateLimiter);
+      this.application.use(globalLimiter);
     }
   }
 
