@@ -1,30 +1,39 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class CreateInitalSchema1766768137828 implements MigrationInterface {
-    name = 'CreateInitalSchema1766768137828'
+export class InitialSchema1770915603211 implements MigrationInterface {
+    name = 'InitialSchema1770915603211'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TYPE "c0"."tags_type_enum" AS ENUM('genre', 'theme', 'demographic', 'format', 'content')`);
         await queryRunner.query(`CREATE TABLE "c0"."tags" ("id" uuid NOT NULL, "name" character varying(100) NOT NULL, "slug" character varying(100) NOT NULL, "description" text, "type" "c0"."tags_type_enum" NOT NULL DEFAULT 'genre', "color" character varying(7), "isActive" boolean NOT NULL DEFAULT true, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "usageCount" integer NOT NULL DEFAULT '0', "createdById" uuid, "updatedById" uuid, CONSTRAINT "UQ_d90243459a697eadb8ad56e9092" UNIQUE ("name"), CONSTRAINT "UQ_b3aa10c29ea4e61a830362bd25a" UNIQUE ("slug"), CONSTRAINT "PK_e7dc17249a1148a1970748eda99" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_d90243459a697eadb8ad56e909" ON "c0"."tags" ("name") `);
         await queryRunner.query(`CREATE TABLE "c0"."pages" ("id" uuid NOT NULL, "number" integer NOT NULL, "imageUrl" character varying(500) NOT NULL, "thumbnailUrl" character varying(500), "width" integer, "height" integer, "fileSize" integer, "format" character varying(10), "hash" character varying(64), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "isActive" boolean NOT NULL DEFAULT true, "isProcessed" boolean NOT NULL DEFAULT false, "chapterId" uuid NOT NULL, "createdById" uuid, "updatedById" uuid, CONSTRAINT "PK_8f21ed625aa34c8391d636b7d3b" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_ff5d10b3ea5b3295cf2ac4f24e" ON "c0"."pages" ("chapterId") `);
+        await queryRunner.query(`CREATE INDEX "IDX_65ba51221ad313a8189a32fa10" ON "c0"."pages" ("chapterId", "number") `);
         await queryRunner.query(`CREATE TABLE "c0"."comments" ("id" uuid NOT NULL, "content" text NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "isActive" boolean NOT NULL DEFAULT true, "isEdited" boolean NOT NULL DEFAULT false, "isPinned" boolean NOT NULL DEFAULT false, "isSpoiler" boolean NOT NULL DEFAULT false, "likeCount" integer NOT NULL DEFAULT '0', "dislikeCount" integer NOT NULL DEFAULT '0', "replyCount" integer NOT NULL DEFAULT '0', "mangaId" uuid, "chapterId" uuid, "userId" uuid NOT NULL, "parentCommentId" uuid, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "c0"."chapters" ("id" uuid NOT NULL, "number" double precision NOT NULL, "title" character varying(255) NOT NULL, "slug" character varying(255) NOT NULL, "description" text, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "publishedAt" TIMESTAMP WITH TIME ZONE, "viewCount" integer NOT NULL DEFAULT '0', "pageCount" integer NOT NULL DEFAULT '0', "commentCount" integer NOT NULL DEFAULT '0', "isActive" boolean NOT NULL DEFAULT true, "mangaId" uuid NOT NULL, "createdById" uuid, "updatedById" uuid, CONSTRAINT "UQ_ca1f9ef451ff9cba38945967abb" UNIQUE ("slug"), CONSTRAINT "PK_a2bbdbb4bdc786fe0cb0fcfc4a0" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE INDEX "IDX_ca1f9ef451ff9cba38945967ab" ON "c0"."chapters" ("slug") `);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_ca1f9ef451ff9cba38945967ab" ON "c0"."chapters" ("slug") `);
         await queryRunner.query(`CREATE INDEX "IDX_7301f587a038330b1d7abb6668" ON "c0"."chapters" ("mangaId") `);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_90b26bd18cd9d223f712779981" ON "c0"."chapters" ("mangaId", "number") `);
         await queryRunner.query(`CREATE TABLE "c0"."ratings" ("id" uuid NOT NULL, "score" numeric(3,2) NOT NULL, "review" text, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "userId" uuid NOT NULL, "mangaId" uuid NOT NULL, CONSTRAINT "PK_0f31425b073219379545ad68ed9" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_4d0b0e3a4c4af854d225154ba4" ON "c0"."ratings" ("userId") `);
         await queryRunner.query(`CREATE INDEX "IDX_53e4eaafe4365f8e459cc086ce" ON "c0"."ratings" ("mangaId") `);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_3bb7728fb6d59d88eef4bc0781" ON "c0"."ratings" ("userId", "mangaId") `);
         await queryRunner.query(`CREATE TABLE "c0"."favorites" ("id" uuid NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "userId" uuid NOT NULL, "mangaId" uuid NOT NULL, CONSTRAINT "PK_890818d27523748dd36a4d1bdc8" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_e747534006c6e3c2f09939da60" ON "c0"."favorites" ("userId") `);
         await queryRunner.query(`CREATE INDEX "IDX_d85fedf5ac0108a3cb262a68d7" ON "c0"."favorites" ("mangaId") `);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_b3d51a7b6311f4fc4570bb00a0" ON "c0"."favorites" ("userId", "mangaId") `);
+        await queryRunner.query(`CREATE TYPE "c0"."mangas_status_enum" AS ENUM('ACTIVED', 'DISABLED', 'REPORTED', 'COMPLETED', 'HIATO')`);
         await queryRunner.query(`CREATE TABLE "c0"."mangas" ("id" uuid NOT NULL, "title" character varying(255) NOT NULL, "description" text, "coverUrl" character varying(500) NOT NULL, "bannerUrl" character varying(500), "isMature" boolean NOT NULL DEFAULT false, "status" "c0"."mangas_status_enum" NOT NULL DEFAULT 'ACTIVED', "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "publicationDate" date, "completionDate" date, "averageRating" numeric(3,2) NOT NULL DEFAULT '0', "ratingCount" integer NOT NULL DEFAULT '0', "viewCount" integer NOT NULL DEFAULT '0', "favoriteCount" integer NOT NULL DEFAULT '0', "commentCount" integer NOT NULL DEFAULT '0', "chapterCount" integer NOT NULL DEFAULT '0', "author" character varying(255), "artist" character varying(255), "publisher" character varying(255), "alternativeTitles" text, "originalLanguage" character varying(10) NOT NULL DEFAULT 'ja', "slug" character varying(255) NOT NULL, "createdById" uuid, "updatedById" uuid, CONSTRAINT "UQ_c9cd91a6960157ee562c2dc8613" UNIQUE ("slug"), CONSTRAINT "PK_caf32b0b7ecd79d3bbc459b989b" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_f18fdb8b77e26c81d96f0b782e" ON "c0"."mangas" ("title") `);
-        await queryRunner.query(`CREATE INDEX "IDX_c9cd91a6960157ee562c2dc861" ON "c0"."mangas" ("slug") `);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_c9cd91a6960157ee562c2dc861" ON "c0"."mangas" ("slug") `);
+        await queryRunner.query(`CREATE TYPE "c0"."reading_history_status_enum" AS ENUM('reading', 'completed', 'on_hold', 'dropped', 'plan_to_read')`);
         await queryRunner.query(`CREATE TABLE "c0"."reading_history" ("id" uuid NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "chaptersRead" integer NOT NULL DEFAULT '0', "pagesRead" integer NOT NULL DEFAULT '0', "lastChapterReadId" uuid, "lastPageReadId" uuid, "lastReadAt" TIMESTAMP WITH TIME ZONE, "userId" uuid NOT NULL, "mangaId" uuid NOT NULL, "status" "c0"."reading_history_status_enum" NOT NULL DEFAULT 'reading', CONSTRAINT "PK_fea39783024da119636add4bc21" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_0a84665f42ef7d9ed671a6828e" ON "c0"."reading_history" ("userId") `);
         await queryRunner.query(`CREATE INDEX "IDX_3df1ae401e85e47c5607205e12" ON "c0"."reading_history" ("mangaId") `);
-        await queryRunner.query(`CREATE TABLE "c0"."users" ("id" uuid NOT NULL, "name" character varying(100) NOT NULL, "lastName" character varying(100) NOT NULL, "userName" character varying(100) NOT NULL, "password" character varying(255) NOT NULL, "biography" text, "birthDate" date, "email" character varying(255) NOT NULL, "role" "c0"."users_role_enum" NOT NULL DEFAULT 'USER', "isVerified" boolean NOT NULL DEFAULT false, "isActive" boolean NOT NULL DEFAULT true, "lastPasswordChange" TIMESTAMP WITH TIME ZONE, "emailVerifiedAt" TIMESTAMP WITH TIME ZONE, "verificationToken" character varying(255), "resetPasswordToken" character varying(255), "resetPasswordExpires" TIMESTAMP WITH TIME ZONE, "profilePictureUrl" character varying(500), "bannerUrl" character varying(500), "address" text, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "lastLoginAt" TIMESTAMP WITH TIME ZONE, "mangasCreated" integer NOT NULL DEFAULT '0', "chaptersCreated" integer NOT NULL DEFAULT '0', "commentsCount" integer NOT NULL DEFAULT '0', "favoritesCount" integer NOT NULL DEFAULT '0', "ratingsCount" integer NOT NULL DEFAULT '0', "showMatureContent" boolean NOT NULL DEFAULT true, "preferredLanguage" character varying NOT NULL DEFAULT 'en', "theme" character varying NOT NULL DEFAULT 'light', CONSTRAINT "UQ_226bb9aa7aa8a69991209d58f59" UNIQUE ("userName"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_50b9a2c6f191d59013b6c03375" ON "c0"."reading_history" ("userId", "mangaId") `);
+        await queryRunner.query(`CREATE TYPE "c0"."users_role_enum" AS ENUM('USER', 'ADMIN', 'OWNER', 'MODERATOR')`);
+        await queryRunner.query(`CREATE TABLE "c0"."users" ("id" uuid NOT NULL, "name" character varying(100) NOT NULL, "lastName" character varying(100) NOT NULL, "userName" character varying(100) NOT NULL, "password" character varying(255) NOT NULL, "biography" text, "birthDate" date, "email" character varying(255) NOT NULL, "role" "c0"."users_role_enum" NOT NULL DEFAULT 'USER', "isVerified" boolean NOT NULL DEFAULT false, "isActive" boolean NOT NULL DEFAULT true, "lastPasswordChange" TIMESTAMP WITH TIME ZONE, "emailVerifiedAt" TIMESTAMP WITH TIME ZONE, "verificationToken" character varying(255), "resetPasswordToken" character varying(255), "resetPasswordExpires" TIMESTAMP WITH TIME ZONE, "profilePictureUrl" character varying(500), "bannerUrl" character varying(500), "address" text, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "lastLoginAt" TIMESTAMP WITH TIME ZONE, "mangasCreated" integer NOT NULL DEFAULT '0', "chaptersCreated" integer NOT NULL DEFAULT '0', "commentsCount" integer NOT NULL DEFAULT '0', "favoritesCount" integer NOT NULL DEFAULT '0', "ratingsCount" integer NOT NULL DEFAULT '0', "showMatureContent" boolean NOT NULL DEFAULT false, "preferredLanguage" character varying NOT NULL DEFAULT 'en', "theme" character varying NOT NULL DEFAULT 'light', CONSTRAINT "UQ_226bb9aa7aa8a69991209d58f59" UNIQUE ("userName"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "c0"."manga_tags" ("manga_id" uuid NOT NULL, "tag_id" uuid NOT NULL, CONSTRAINT "PK_d091ae0d32f5cab6730e63803c9" PRIMARY KEY ("manga_id", "tag_id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_1109d1c70cab1729fc7b701b04" ON "c0"."manga_tags" ("manga_id") `);
         await queryRunner.query(`CREATE INDEX "IDX_1148bf09ecca3c6ad1a18bd30a" ON "c0"."manga_tags" ("tag_id") `);
@@ -93,26 +102,35 @@ export class CreateInitalSchema1766768137828 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX "c0"."IDX_1109d1c70cab1729fc7b701b04"`);
         await queryRunner.query(`DROP TABLE "c0"."manga_tags"`);
         await queryRunner.query(`DROP TABLE "c0"."users"`);
+        await queryRunner.query(`DROP TYPE "c0"."users_role_enum"`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_50b9a2c6f191d59013b6c03375"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_3df1ae401e85e47c5607205e12"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_0a84665f42ef7d9ed671a6828e"`);
         await queryRunner.query(`DROP TABLE "c0"."reading_history"`);
+        await queryRunner.query(`DROP TYPE "c0"."reading_history_status_enum"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_c9cd91a6960157ee562c2dc861"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_f18fdb8b77e26c81d96f0b782e"`);
         await queryRunner.query(`DROP TABLE "c0"."mangas"`);
+        await queryRunner.query(`DROP TYPE "c0"."mangas_status_enum"`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_b3d51a7b6311f4fc4570bb00a0"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_d85fedf5ac0108a3cb262a68d7"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_e747534006c6e3c2f09939da60"`);
         await queryRunner.query(`DROP TABLE "c0"."favorites"`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_3bb7728fb6d59d88eef4bc0781"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_53e4eaafe4365f8e459cc086ce"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_4d0b0e3a4c4af854d225154ba4"`);
         await queryRunner.query(`DROP TABLE "c0"."ratings"`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_90b26bd18cd9d223f712779981"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_7301f587a038330b1d7abb6668"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_ca1f9ef451ff9cba38945967ab"`);
         await queryRunner.query(`DROP TABLE "c0"."chapters"`);
         await queryRunner.query(`DROP TABLE "c0"."comments"`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_65ba51221ad313a8189a32fa10"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_ff5d10b3ea5b3295cf2ac4f24e"`);
         await queryRunner.query(`DROP TABLE "c0"."pages"`);
         await queryRunner.query(`DROP INDEX "c0"."IDX_d90243459a697eadb8ad56e909"`);
         await queryRunner.query(`DROP TABLE "c0"."tags"`);
+        await queryRunner.query(`DROP TYPE "c0"."tags_type_enum"`);
     }
 
 }

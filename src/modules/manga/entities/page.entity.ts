@@ -13,6 +13,7 @@ import {
 import { Chapter } from './chapter.entity';
 
 @Entity('pages')
+@Index(['chapterId', 'number'])
 export class Page {
   @PrimaryColumn('uuid')
   id: string = UUID.generate();

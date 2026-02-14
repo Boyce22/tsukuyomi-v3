@@ -4,6 +4,7 @@ import { Entity, ManyToOne, CreateDateColumn, PrimaryColumn, Index, Column } fro
 import { Manga } from './manga.entity';
 
 @Entity('favorites')
+@Index(['userId', 'mangaId'], { unique: true })
 export class Favorite {
   @PrimaryColumn('uuid')
   id: string = UUID.generate();

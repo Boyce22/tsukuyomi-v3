@@ -1,5 +1,6 @@
 import { UUID } from '@/shared/utils/uuid';
 import { User } from '@/modules/user/entities/user.entity';
+
 import {
   Entity,
   Column,
@@ -11,6 +12,7 @@ import {
   Index,
   DeleteDateColumn,
 } from 'typeorm';
+
 import { Manga } from './manga.entity';
 import { TagType } from '@/shared/enums/tag-type';
 

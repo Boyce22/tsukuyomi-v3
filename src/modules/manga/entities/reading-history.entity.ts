@@ -9,6 +9,7 @@ import { User } from '@/modules/user/entities/user.entity';
 import { HistoryStatus } from '@/shared/enums/history-status';
 
 @Entity('reading_history')
+@Index(['userId', 'mangaId'], { unique: true })
 export class ReadingHistory {
   @PrimaryColumn('uuid')
   id: string = UUID.generate();

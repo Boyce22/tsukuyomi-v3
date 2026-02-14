@@ -16,6 +16,7 @@ import { Page } from './page.entity';
 import { Comment } from './comment.entity';
 
 @Entity('chapters')
+@Index(['mangaId', 'number'], { unique: true })
 export class Chapter {
   @PrimaryColumn('uuid')
   id: string = UUID.generate();
