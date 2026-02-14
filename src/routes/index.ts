@@ -1,10 +1,13 @@
 import { Router } from 'express';
-import { authRouter } from '@/modules/auth/auth.controller';
+import { userRouter } from '@/modules/user/user.factory';
+import { authRouter } from '@/modules/auth/auth.factory';
+
 
 const routes = Router();
 
-// Auth routes
 routes.use('/auth', authRouter);
+
+routes.use('/users', userRouter)
 
 // TODO: Add other routes
 // routes.use('/mangas', mangaRouter);

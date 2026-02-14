@@ -10,20 +10,20 @@ export class AuthController {
   public router: Router;
   private authService: AuthService;
 
-  constructor() {
+  constructor(authService: AuthService) {
     this.router = Router();
-    this.authService = new AuthService();
+    this.authService = authService;
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.post('/register', this.register);
-    this.router.post('/login', this.login);
-    this.router.post('/refresh', this.refreshToken);
-    this.router.get('/me', authenticate, this.getCurrentUser);
+    this.router.post('/register', this.register.bind(this));
+    this.router.post('/login', this.login.bind(this));
+    this.router.post('/refresh', this.refreshToken.bind(this));
+    this.router.get('/me', authenticate, this.getCurrentUser.bind(this));
   }
 
-  private register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = validateDto(registerSchema, req.body);
       const result = await this.authService.register(data);
@@ -31,9 +31,9 @@ export class AuthController {
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  private login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = validateDto(loginSchema, req.body);
       const result = await this.authService.login(data);
@@ -41,9 +41,9 @@ export class AuthController {
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  private refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { refreshToken } = validateDto(refreshTokenSchema, req.body);
       const result = await this.authService.refreshToken(refreshToken);
@@ -51,18 +51,28 @@ export class AuthController {
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  private getCurrentUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async getCurrentUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { password, resetPasswordToken, verificationToken, ...user } = req.user!;
+      const {
+        password,
+        resetPasswordToken,
+        verificationToken,
+        createdMangas,
+        createdChapters,
+        createdPages,
+        createdTags,
+        comments,
+        favorites,
+        ratings,
+        readingHistory,
+        ...user
+      } = req.user!;
+
       res.json(user);
     } catch (error) {
       next(error);
     }
-  };
+  }
 }
-
-export const authController = new AuthController();
-
-export const authRouter = authController.router;
