@@ -76,6 +76,9 @@ export class JWTMiddleware {
 }
 
 export const jwtMiddleware = new JWTMiddleware();
+
 export const authenticate = jwtMiddleware.authenticate.bind(jwtMiddleware);
+
 export const optionalAuthenticate = jwtMiddleware.optionalAuthenticate.bind(jwtMiddleware);
+
 export const authorize = jwtMiddleware.authorize.bind(jwtMiddleware);
