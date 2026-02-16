@@ -4,6 +4,7 @@ import { Server as HttpServer } from 'http';
 
 import { logger } from '@utils';
 import { AppDataSource, env } from '@config';
+// import { seedLocations } from './shared/seed/seed-locations';
 
 class Server {
   private readonly port: number;
@@ -25,6 +26,8 @@ class Server {
         environment: env.NODE_ENV,
         url: `http://localhost:${this.port}`,
       });
+
+      // await seedLocations() // habilitar somente na primeira execução
     } catch (error) {
       logger.error('Failed to start server', { error });
       process.exit(1);

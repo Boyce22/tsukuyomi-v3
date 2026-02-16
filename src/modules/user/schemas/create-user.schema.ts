@@ -17,7 +17,7 @@ export const createUserSchema = z.object({
     .regex(/^[a-zA-Z0-9_-]+$/, 'Username must contain only letters, numbers, underscores and hyphens'),
   email: z.email(),
   password: passwordSchema,
-  birthDate: z.string().date().optional(),
+  birthDate: z.date().optional()
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
