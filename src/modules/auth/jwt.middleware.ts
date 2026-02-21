@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '@/modules/user/entities/user.entity';
 import { AuthService } from './auth.service';
-import { UnauthorizedError, ForbiddenError } from '@/shared/errors/app-error';
 import { Roles } from '@/shared/security/roles.enum';
+import { ForbiddenError, UnauthorizedError } from '@errors';
 
 declare global {
   namespace Express {
