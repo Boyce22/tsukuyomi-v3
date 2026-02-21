@@ -17,6 +17,24 @@ export class CountryRepository {
     });
   }
 
+  async findStateById(stateId: number): Promise<State | null> {
+    return this.stateRepo.findOne({
+      where: { id: stateId },
+    });
+  }
+
+  async findCityById(cityId: number): Promise<City | null> {
+    return this.cityRepo.findOne({
+      where: { id: cityId },
+    });
+  }
+
+  async findCountryById(countryId: number): Promise<Country | null> {
+    return this.countryRepo.findOne({
+      where: { id: countryId },
+    });
+  }
+
   async findAllCursor(query: QueryCountriesInput) {
     const { cursor, limit, search, order } = query;
 
