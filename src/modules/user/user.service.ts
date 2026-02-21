@@ -2,15 +2,7 @@ import bcrypt from 'bcryptjs';
 import { Logger } from 'pino';
 import { UserRepository } from './user.repository';
 
-import {
-  CreateUserInput,
-  UpdateUserInput,
-  PatchUserInput,
-  ChangePasswordInput,
-  UpdateBiographyInput,
-  PreferencesInput,
-  QueryUsersInput,
-} from './schemas';
+import { CreateUserInput, UpdateUserInput, PatchUserInput, ChangePasswordInput, QueryUsersInput } from './schemas';
 
 import { toUserResponse } from './helpers/user-response.helper';
 
@@ -20,7 +12,6 @@ import { UserResponse } from './dtos/user-response.dto';
 
 export class UserService {
   private static readonly SALT_ROUNDS = 12;
-  private static readonly MIN_PASSWORD_LENGTH = 8;
 
   constructor(
     private readonly userRepository: UserRepository,
@@ -158,26 +149,6 @@ export class UserService {
 
     await this.userRepository.softDeleteUserById(id);
     this.logger.info({ userId: id }, 'User soft deleted');
-  }
-
-  async updateBiography(id: string, input: UpdateBiographyInput): Promise<UserResponse> {
-    const currentUser = await this.userRepository.findById(id);
-    if (!currentUser) {
-      throw new NotFoundError('User not found');
-    }
-
-    const user = await this.userRepository.updateBiography(id, input.biography);
-    return toUserResponse(user);
-  }
-
-  async updatePreferences(id: string, input: PreferencesInput): Promise<UserResponse> {
-    const currentUser = await this.userRepository.findById(id);
-    if (!currentUser) {
-      throw new NotFoundError('User not found');
-    }
-
-    const user = await this.userRepository.updatePreferences(id, input);
-    return toUserResponse(user);
   }
 
   async changePassword(id: string, input: ChangePasswordInput): Promise<void> {
