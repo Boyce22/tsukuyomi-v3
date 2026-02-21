@@ -1,35 +1,37 @@
 import { Request, Response, NextFunction, Router } from 'express';
-
 import { UserService } from './user.service';
 import { Roles } from '@/shared/security/roles.enum';
 import { validateDto } from '@/shared/utils/validate-dto';
-
-import { createUserSchema, updateUserSchema, patchUserSchema, changePasswordSchema, queryUsersSchema } from './schemas';
-
+import { createUserSchema, patchUserSchema, changePasswordSchema, queryUsersSchema, updateUserSchema } from './schemas';
 import { authenticate, authorize } from '../auth/jwt.middleware';
 import { getAuthUser } from '@/shared/utils/get-authenticated-user';
+import { CountryService } from '../country/country.service';
 
 export class UserController {
   public router: Router;
   private userService: UserService;
+  private countryService: CountryService;
 
-  constructor(userService: UserService) {
+  constructor(userService: UserService, countryService: CountryService) {
     this.router = Router();
     this.userService = userService;
+    this.countryService = countryService;
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
+    // Rotas do usuário autenticado
     this.router.get('/me', authenticate, this.getMe.bind(this));
-    this.router.patch('/me', authenticate, this.patchMe.bind(this));
     this.router.put('/me', authenticate, this.updateMe.bind(this));
+    this.router.patch('/me', authenticate, this.patchMe.bind(this));
     this.router.post('/me/change-password', authenticate, this.changePassword.bind(this));
 
+    // Rotas públicas e listagem
     this.router.post('/', this.createUser.bind(this));
     this.router.get('/', authenticate, this.getUsers.bind(this));
     this.router.get('/:id', authenticate, this.getUserById.bind(this));
 
-    this.router.put('/:id', authenticate, authorize(Roles.ADMIN), this.updateUser.bind(this));
+    // Rotas administrativas
     this.router.patch('/:id', authenticate, authorize(Roles.ADMIN), this.patchUser.bind(this));
     this.router.delete('/:id', authenticate, authorize(Roles.ADMIN), this.deleteUser.bind(this));
     this.router.post('/:id/verify', authenticate, authorize(Roles.ADMIN), this.verifyUser.bind(this));
@@ -47,7 +49,11 @@ export class UserController {
   async updateMe(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = validateDto(updateUserSchema, req.body);
-      const user = await this.userService.updateUserById(getAuthUser(req).id, data);
+      const { address: addressIds, ...userData } = data;
+
+      const address = await this.countryService.validateAndBuildAddress(addressIds);
+      const user = await this.userService.updateUserById(getAuthUser(req).id, userData, address);
+
       res.json(user);
     } catch (error) {
       next(error);
@@ -57,7 +63,11 @@ export class UserController {
   async patchMe(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = validateDto(patchUserSchema, req.body);
-      const user = await this.userService.patchUserById(getAuthUser(req).id, data);
+      const { address: addressIds, ...userData } = data;
+
+      const address = await this.countryService.validateAndBuildAddress(addressIds);
+      const user = await this.userService.patchUserById(getAuthUser(req).id, userData, address);
+
       res.json(user);
     } catch (error) {
       next(error);
@@ -103,20 +113,14 @@ export class UserController {
     }
   }
 
-  async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const data = validateDto(updateUserSchema, req.body);
-      const user = await this.userService.updateUserById(req.params.id, data);
-      res.json(user);
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async patchUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = validateDto(patchUserSchema, req.body);
-      const user = await this.userService.patchUserById(req.params.id, data);
+      const { address: addressIds, ...userData } = data;
+
+      const address = await this.countryService.validateAndBuildAddress(addressIds);
+      const user = await this.userService.patchUserById(req.params.id, userData, address);
+
       res.json(user);
     } catch (error) {
       next(error);
