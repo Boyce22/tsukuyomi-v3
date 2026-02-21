@@ -11,7 +11,7 @@ import { AppDataSource, env } from '@config';
 import { User } from '@/modules/user/entities/user.entity';
 
 import { toUserResponse } from '@/shared/helpers/user-response.helper';
-import { UnauthorizedError, ForbiddenError, ConflictError } from '@/shared/errors/app-error';
+import { ConflictError, ForbiddenError, UnauthorizedError } from '@errors';
 
 interface JWTPayload {
   userId: string;

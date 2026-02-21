@@ -3,10 +3,10 @@ import { Logger } from 'pino';
 import { UserRepository } from './user.repository';
 import { CreateUserInput, UpdateUserInput, PatchUserInput, ChangePasswordInput, QueryUsersInput } from './schemas';
 import { toUserResponse } from '../../shared/helpers/user-response.helper';
-import { NotFoundError, ConflictError, BadRequestError } from '@/shared/errors/app-error';
 import { PaginatedResponse } from '@/shared/interfaces/api-response.interface';
 import { UserResponse } from './dtos/user-response.dto';
 import { User } from './entities/user.entity';
+import { BadRequestError, ConflictError, NotFoundError } from '@errors';
 
 export class UserService {
   private static readonly SALT_ROUNDS = 12;

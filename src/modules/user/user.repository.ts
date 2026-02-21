@@ -1,8 +1,9 @@
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { User } from './entities/user.entity';
-import { NotFoundError } from '@/shared/errors/app-error';
+
 import { QueryUsersInput, CreateUserInput, UpdateUserInput, PatchUserInput } from './schemas';
 import { Roles } from '@/shared/security/roles.enum';
+import { NotFoundError } from '@errors';
 
 export class UserRepository {
   constructor(private readonly repository: Repository<User>) {}

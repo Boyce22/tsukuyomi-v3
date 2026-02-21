@@ -24,7 +24,7 @@ class LoggerService {
     const isProd = env.NODE_ENV === 'production';
 
     return {
-      name: env.APP_NAME || 'api',
+      name: env.NODE_ENV || 'api',
       level: isProd ? 'info' : 'debug',
       timestamp: pino.stdTimeFunctions.isoTime,
       formatters: {
