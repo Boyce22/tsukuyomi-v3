@@ -21,90 +21,30 @@ tsukuyomi-v3/
 └── src/
     ├── server.ts                             # Entry point — inicialização do servidor
     ├── app.ts                                # Setup do Express (Singleton)
-    │
     ├── config/
     │   ├── index.ts                          # Barrel export
     │   ├── env.ts                            # Validação de env vars com Zod
     │   ├── database.ts                       # DataSource TypeORM (PostgreSQL)
     │   └── express.d.ts                      # Augmentação de tipos do Express
-    │
     ├── database/
     │   └── migrations/
-    │       └── 1770915603211-InitialSchema.ts  # Migração inicial (schema completo)
-    │
     ├── modules/
     │   ├── user/
-    │   │   └── entities/
-    │   │       └── user.entity.ts            # Entidade User
-    │   │
     │   └── manga/
-    │       └── entities/
-    │           ├── manga.entity.ts           # Entidade Manga
-    │           ├── chapter.entity.ts         # Entidade Chapter
-    │           ├── page.entity.ts            # Entidade Page
-    │           ├── tag.entity.ts             # Entidade Tag
-    │           ├── comment.entity.ts         # Entidade Comment (árvore closure-table)
-    │           ├── favorite.entity.ts        # Entidade Favorite
-    │           ├── rating.entity.ts          # Entidade Rating
-    │           └── reading-history.entity.ts # Entidade ReadingHistory
-    │
     ├── routes/
     │   └── index.ts                          # Agregador de rotas da API
-    │
     └── shared/
         ├── container/
-        │   └── index.ts                      # Injeção de dependência (placeholder)
-        │
         ├── enums/
-        │   ├── manga-status.ts               # ACTIVED | DISABLED | REPORTED | COMPLETED | HIATO
-        │   ├── tag-type.ts                   # GENRE | THEME | DEMOGRAPHIC | FORMAT | CONTENT
-        │   └── history-status.ts             # READING | COMPLETED | ON_HOLD | DROPPED | PLAN_TO_READ
-        │
         ├── errors/
-        │   ├── index.ts
-        │   ├── app-error.ts                  # Classe base de erro
-        │   ├── missing-fields-error.ts
-        │   ├── password-not-match-error.ts
-        │   └── user-not-found-error.ts
-        │
         ├── middlewares/
-        │   ├── index.ts
-        │   ├── error-handler.ts              # Handler global de erros
-        │   ├── request-logger.ts             # Log de requisições HTTP
-        │   ├── rate-limiter.ts               # Rate limiting (produção)
-        │   └── route-not-found.ts            # Handler 404
-        │
         ├── security/
-        │   ├── roles.enum.ts                 # USER | ADMIN | OWNER | MODERATOR
-        │   └── permission.ts                 # Utilitários de permissão
-        │
         └── utils/
             ├── index.ts
             ├── logger.ts                     # Pino logger (Singleton, redaction)
             ├── uuid.ts                       # UUID v7 (time-based, sortável)
             └── validate-dto.ts               # Validação de DTOs
 ```
-
----
-
-## Relacionamentos das Entidades
-
-```
-User ──────────── Manga, Chapter, Page, Tag    [createdBy]
-User ──────────── Comment, Favorite, Rating, ReadingHistory
-
-Manga ─────────── Chapter, Comment, Favorite, Rating
-Manga ─────────── Tag  [many-to-many via manga_tags]
-
-Chapter ───────── Page, Comment
-
-Favorite       = User + Manga (par único)
-Rating         = User + Manga (par único)
-ReadingHistory = User + Manga (par único)
-Comment        = referencia Manga OU Chapter + hierarquia (parent/replies)
-```
-
----
 
 ## Variáveis de Ambiente
 
@@ -121,6 +61,8 @@ Comment        = referencia Manga OU Chapter + hierarquia (parent/replies)
 | `DB_PORT` | Porta PostgreSQL |
 | `DB_DATABASE` | Nome do banco |
 | `DB_SCHEMA` | Schema (padrão: `c0`) |
+| `JWT_SECRET` | Secreto para geração do token principal |
+| `JWT_REFRESH_SECRET` | Secreto para renovação |
 
 ---
 
@@ -144,10 +86,10 @@ Comment        = referencia Manga OU Chapter + hierarquia (parent/replies)
 | Servidor / Express / Config | ✅ Completo |
 | Schema do banco (migração) | ✅ Completo |
 | Entidades (TypeORM) | ✅ Completo |
-| Rotas / Controllers | ⬜ Não iniciado |
-| Services / Repositories | ⬜ Não iniciado |
-| DTOs / Validação | ⬜ Não iniciado |
-| Autenticação (JWT) | ⬜ Não iniciado |
+| Rotas / Controllers | ✅ Completo |
+| Services / Repositories | ✅ Completo |
+| DTOs / Validação | ✅ Completo |
+| Autenticação (JWT) | ✅ Completo |
 
 ---
 
