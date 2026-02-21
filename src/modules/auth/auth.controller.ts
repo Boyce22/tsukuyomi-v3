@@ -1,3 +1,4 @@
+// src/modules/auth/auth.controller.ts
 import { Request, Response, NextFunction, Router } from 'express';
 import { AuthService } from './auth.service';
 import { registerSchema } from './dtos/register.dto';
@@ -20,6 +21,7 @@ export class AuthController {
     this.router.post('/register', this.register.bind(this));
     this.router.post('/login', this.login.bind(this));
     this.router.post('/refresh', this.refreshToken.bind(this));
+    this.router.post('/logout', authenticate, this.logout.bind(this));
     this.router.get('/me', authenticate, this.getCurrentUser.bind(this));
   }
 
@@ -53,12 +55,22 @@ export class AuthController {
     }
   }
 
+  async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await this.authService.logout(req.userId!);
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getCurrentUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const {
         password,
         resetPasswordToken,
         verificationToken,
+        refreshToken,
         createdMangas,
         createdChapters,
         createdPages,

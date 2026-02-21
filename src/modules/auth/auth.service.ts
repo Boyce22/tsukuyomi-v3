@@ -1,12 +1,17 @@
 import { Repository } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User } from '@/modules/user/entities/user.entity';
+
 import { RegisterDTO } from './dtos/register.dto';
 import { LoginDTO } from './dtos/login.dto';
 import { AuthResponseDTO, RefreshTokenResponseDTO } from './dtos/auth-response.dto';
-import { AppError } from '@errors';
+
 import { AppDataSource, env } from '@config';
+
+import { User } from '@/modules/user/entities/user.entity';
+
+import { toUserResponse } from '@/shared/helpers/user-response.helper';
+import { UnauthorizedError, ForbiddenError, ConflictError } from '@/shared/errors/app-error';
 
 interface JWTPayload {
   userId: string;
@@ -15,6 +20,7 @@ interface JWTPayload {
 }
 
 export class AuthService {
+  private static readonly SALT_ROUNDS = 12;
   private userRepository: Repository<User>;
 
   constructor() {
@@ -22,15 +28,18 @@ export class AuthService {
   }
 
   async register(data: RegisterDTO): Promise<AuthResponseDTO> {
-    await this.validateUniqueUser(data.email, data.userName);
+    const normalizedEmail = data.email.toLowerCase();
+    await this.validateUniqueUser(normalizedEmail, data.userName);
 
     const birthDate = new Date(data.birthDate);
+    const hashedPassword = await bcrypt.hash(data.password, AuthService.SALT_ROUNDS);
+
     const user = this.userRepository.create({
       name: data.name,
       lastName: data.lastName,
       userName: data.userName,
-      email: data.email.toLowerCase(),
-      password: await bcrypt.hash(data.password, 10),
+      email: normalizedEmail,
+      password: hashedPassword,
       birthDate,
       lastLoginAt: new Date(),
       showMatureContent: this.calculateAge(birthDate) >= 18,
@@ -44,23 +53,35 @@ export class AuthService {
   async login(data: LoginDTO): Promise<AuthResponseDTO> {
     const user = await this.findUserByIdentifier(data.identifier);
 
-    if (!user) throw new AppError('Invalid credentials', 401);
-    if (!user.isActive) throw new AppError('Account is deactivated', 403);
+    if (!user) throw new UnauthorizedError('Invalid credentials');
+    if (!user.isActive) throw new ForbiddenError('Account is deactivated');
 
     await this.verifyPassword(data.password, user.password);
-
     await this.updateLastLogin(user.id);
 
     return this.buildAuthResponse(user);
   }
 
+  // todo: detectar possível invasão e noticar usuário.
   async refreshToken(refreshToken: string): Promise<RefreshTokenResponseDTO> {
     const payload = this.verifyToken(refreshToken, env.JWT_REFRESH_SECRET);
-    const user = await this.getUserById(payload.userId);
+    const user = await this.findUserWithRefreshToken(payload.userId);
 
-    if (!user) throw new AppError('Invalid refresh token', 401);
+    if (!user || !user.isActive) {
+      throw new UnauthorizedError('Invalid refresh token');
+    }
 
-    return this.generateTokens(user);
+    if (user.refreshToken !== refreshToken) {
+      throw new UnauthorizedError('Invalid refresh token');
+    }
+
+    return {
+      accessToken: this.generateAccessToken(user),
+    };
+  }
+
+  async logout(userId: string): Promise<void> {
+    await this.userRepository.update(userId, { refreshToken: undefined });
   }
 
   async getUserById(userId: string): Promise<User | null> {
@@ -75,31 +96,42 @@ export class AuthService {
 
   private async findUserByIdentifier(identifier: string): Promise<User | null> {
     const isEmail = identifier.includes('@');
-    
     const whereClause = isEmail ? { email: identifier.toLowerCase() } : { userName: identifier };
 
     return this.userRepository.findOne({
       where: whereClause,
       select: [
-        'id',
-        'email',
         'password',
-        'isActive',
+        'id',
         'name',
         'lastName',
         'userName',
-        'role',
+        'email',
         'profilePictureUrl',
+        'role',
         'isVerified',
-        'birthDate',
+        'isActive',
+        'theme',
+        'preferredLanguage',
         'showMatureContent',
+        'createdAt',
+        'updatedAt'
       ],
     });
   }
 
+  private async findUserWithRefreshToken(userId: string): Promise<User | null> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.refreshToken')
+      .where('user.id = :userId', { userId })
+      .andWhere('user.isActive = :isActive', { isActive: true })
+      .getOne();
+  }
+
   private async verifyPassword(plainPassword: string, hashedPassword: string): Promise<void> {
     const isValid = await bcrypt.compare(plainPassword, hashedPassword);
-    if (!isValid) throw new AppError('Invalid credentials', 401);
+    if (!isValid) throw new UnauthorizedError('Invalid credentials');
   }
 
   private async updateLastLogin(userId: string): Promise<void> {
@@ -108,15 +140,14 @@ export class AuthService {
 
   private async validateUniqueUser(email: string, userName: string): Promise<void> {
     const existingUser = await this.userRepository.findOne({
-      where: [{ email: email.toLowerCase() }, { userName }],
+      where: [{ email }, { userName }],
     });
 
     if (!existingUser) return;
 
-    throw new AppError(
-      existingUser.email === email.toLowerCase() ? 'Email already in use' : 'Username already taken',
-      409,
-    );
+    const errorMessage = existingUser.email === email ? 'Email already in use' : 'Username already taken';
+
+    throw new ConflictError(errorMessage);
   }
 
   private calculateAge(birthDate: Date): number {
@@ -135,8 +166,23 @@ export class AuthService {
     try {
       return jwt.verify(token, secret) as JWTPayload;
     } catch (error) {
-      throw new AppError('Invalid or expired token', 401);
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new UnauthorizedError('Token has expired');
+      }
+      throw new UnauthorizedError('Invalid token');
     }
+  }
+
+  private generateAccessToken(user: User): string {
+    const payload: JWTPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    return jwt.sign(payload, env.JWT_SECRET, {
+      expiresIn: env.JWT_EXPIRES_IN as any,
+    });
   }
 
   private generateTokens(user: User): { accessToken: string; refreshToken: string } {
@@ -146,20 +192,23 @@ export class AuthService {
       role: user.role,
     };
 
-    return {
-      accessToken: jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN as any }),
-      refreshToken: jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN as any }),
+    const tokens = {
+      accessToken: jwt.sign(payload, env.JWT_SECRET, {
+        expiresIn: env.JWT_EXPIRES_IN as any,
+      }),
+      refreshToken: jwt.sign(payload, env.JWT_REFRESH_SECRET, {
+        expiresIn: env.JWT_REFRESH_EXPIRES_IN as any,
+      }),
     };
-  }
 
-  private sanitizeUser(user: User) {
-    const { password, resetPasswordToken, verificationToken, ...sanitized } = user;
-    return sanitized;
+    this.userRepository.update(user.id, { refreshToken: tokens.refreshToken });
+
+    return tokens;
   }
 
   private buildAuthResponse(user: User): AuthResponseDTO {
     return {
-      user: this.sanitizeUser(user),
+      user: toUserResponse(user),
       ...this.generateTokens(user),
     };
   }

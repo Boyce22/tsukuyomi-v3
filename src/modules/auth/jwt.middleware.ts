@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '@/modules/user/entities/user.entity';
 import { AuthService } from './auth.service';
-import { AppError } from '@errors';
+import { UnauthorizedError, ForbiddenError } from '@/shared/errors/app-error';
+import { Roles } from '@/shared/security/roles.enum';
 
 declare global {
   namespace Express {
@@ -22,12 +23,13 @@ export class JWTMiddleware {
   async authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
     try {
       const token = this.extractToken(req);
-      if (!token) throw new AppError('No token provided', 401);
+      if (!token) throw new UnauthorizedError('No token provided');
 
       const decoded = this.authService.verifyAccessToken(token);
       const user = await this.authService.getUserById(decoded.userId);
 
-      if (!user) throw new AppError('User not found', 401);
+      if (!user) throw new UnauthorizedError('User not found');
+      if (!user.isActive) throw new ForbiddenError('Account is deactivated');
 
       req.user = user;
       req.userId = user.id;
@@ -37,34 +39,17 @@ export class JWTMiddleware {
     }
   }
 
-  async optionalAuthenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
-    try {
-      const token = this.extractToken(req);
-      if (!token) return next();
-
-      const decoded = this.authService.verifyAccessToken(token);
-      const user = await this.authService.getUserById(decoded.userId);
-
-      if (user) {
-        req.user = user;
-        req.userId = user.id;
-      }
-    } catch {
-      // Silently fail for optional auth
-    } finally {
-      next();
-    }
-  }
-
-  authorize(...allowedRoles: string[]) {
+  authorize(...allowedRoles: Roles[]) {
     return (req: Request, _res: Response, next: NextFunction): void => {
-      if (!req.user) throw new AppError('Authentication required', 401);
-
-      if (!allowedRoles.includes(req.user.role)) {
-        throw new AppError('Insufficient permissions', 403);
+      try {
+        if (!req.user) throw new UnauthorizedError('Authentication required');
+        if (!allowedRoles.includes(req.user.role as Roles)) {
+          throw new ForbiddenError('Insufficient permissions');
+        }
+        next();
+      } catch (error) {
+        next(error);
       }
-      
-      next();
     };
   }
 
@@ -75,10 +60,7 @@ export class JWTMiddleware {
   }
 }
 
-export const jwtMiddleware = new JWTMiddleware();
+const jwtMiddleware = new JWTMiddleware();
 
 export const authenticate = jwtMiddleware.authenticate.bind(jwtMiddleware);
-
-export const optionalAuthenticate = jwtMiddleware.optionalAuthenticate.bind(jwtMiddleware);
-
 export const authorize = jwtMiddleware.authorize.bind(jwtMiddleware);
