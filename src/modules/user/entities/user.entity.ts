@@ -24,37 +24,37 @@ import { ReadingHistory } from '@/modules/manga/entities/reading-history.entity'
 @Entity('users')
 export class User {
   @PrimaryColumn('uuid')
-  id: string = UUID.generate();
+  id: string = UUID.generate(); //ok
 
   @Column({ length: 100 })
-  name!: string;
+  name!: string; //ok
 
   @Column({ length: 100 })
-  lastName!: string;
+  lastName!: string; //ok
 
   @Column({ unique: true, length: 100 })
-  userName!: string;
+  userName!: string; //ok
 
   @Column({ length: 255, select: false }) // Never select password by default
-  password!: string;
+  password!: string; //ok
 
   @Column({ type: 'text', nullable: true })
-  biography?: string;
+  biography?: string;  //ok
 
   @Column({ type: 'date', nullable: true })
-  birthDate?: Date;
+  birthDate?: Date; //ok
 
   @Column({ unique: true, length: 255 })
-  email!: string;
+  email!: string; //ok
 
   @Column({ type: 'enum', enum: Roles, default: Roles.USER })
-  role!: Roles;
+  role!: Roles; //ok
 
   @Column({ default: false })
   isVerified!: boolean;
 
   @Column({ default: true })
-  isActive!: boolean;
+  isActive!: boolean; //ok
 
   @Column({ type: 'timestamptz', nullable: true })
   lastPasswordChange?: Date;
@@ -71,6 +71,10 @@ export class User {
   @Column({ type: 'timestamptz', nullable: true })
   resetPasswordExpires?: Date;
 
+
+  @Column({ type: 'text', nullable: true, select: false })
+  refreshToken?: string; // ok
+
   @Column({ length: 500, nullable: true })
   profilePictureUrl?: string;
 
@@ -78,19 +82,19 @@ export class User {
   bannerUrl?: string;
 
   @Column({ type: 'text', nullable: true })
-  address?: string;
+  address?: string; // ok
 
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt!: Date;
+  createdAt!: Date; //ok
 
   @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt!: Date;
+  updatedAt!: Date; //ok
 
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  deletedAt?: Date;
+  deletedAt?: Date; //ok
 
   @Column({ type: 'timestamptz', nullable: true })
-  lastLoginAt?: Date;
+  lastLoginAt?: Date; 
 
   // Statistics
   @Column({ type: 'int', default: 0 })

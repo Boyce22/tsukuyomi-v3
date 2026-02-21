@@ -1,5 +1,5 @@
-import { User } from '../entities/user.entity';
-import { UserResponse } from '../dtos/user-response.dto';
+import { User } from '../../modules/user/entities/user.entity';
+import { UserResponse } from '../../modules/user/dtos/user-response.dto';
 
 export function toUserResponse(user: User): UserResponse {
   const response: UserResponse = {

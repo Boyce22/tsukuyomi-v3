@@ -19,7 +19,7 @@ const countryRepository = new CountryRepository(
   AppDataSource.getRepository(City),
 );
 
-const countryService = new CountryService(countryRepository, logger);
+export const countryService = new CountryService(countryRepository, logger);
 const countryController = new CountryController(countryService);
 
 export const countryRouter = countryController.router;

@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { Logger } from 'pino';
 import { UserRepository } from './user.repository';
 import { CreateUserInput, UpdateUserInput, PatchUserInput, ChangePasswordInput, QueryUsersInput } from './schemas';
-import { toUserResponse } from './helpers/user-response.helper';
+import { toUserResponse } from '../../shared/helpers/user-response.helper';
 import { NotFoundError, ConflictError, BadRequestError } from '@/shared/errors/app-error';
 import { PaginatedResponse } from '@/shared/interfaces/api-response.interface';
 import { UserResponse } from './dtos/user-response.dto';
