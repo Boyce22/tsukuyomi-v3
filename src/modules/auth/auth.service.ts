@@ -2,16 +2,16 @@ import { Repository } from 'typeorm';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-import { RegisterDTO } from './dtos/register.dto';
-import { LoginDTO } from './dtos/login.dto';
-import { AuthResponseDTO, RefreshTokenResponseDTO } from './dtos/auth-response.dto';
+import { RegisterDTO } from '@/modules/auth/dtos/register.dto';
+import { LoginDTO } from '@/modules/auth/dtos/login.dto';
+import { AuthResponseDTO, RefreshTokenResponseDTO } from '@/modules/auth/dtos/auth-response.dto';
 
 import { AppDataSource, env } from '@config';
 
 import { User } from '@/modules/user/entities/user.entity';
 
-import { toUserResponse } from '@/shared/helpers/user-response.helper';
 import { ConflictError, ForbiddenError, UnauthorizedError } from '@errors';
+import { toUserResponse } from '@/modules/user/helpers/user-response.helper';
 
 interface JWTPayload {
   userId: string;
@@ -115,7 +115,7 @@ export class AuthService {
         'preferredLanguage',
         'showMatureContent',
         'createdAt',
-        'updatedAt'
+        'updatedAt',
       ],
     });
   }

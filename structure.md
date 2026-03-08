@@ -103,3 +103,19 @@ tsukuyomi-v3/
 | `@errors` | `src/shared/errors` |
 | `@/modules/*` | `src/modules/*` |
 | `@/shared/*` | `src/shared/*` |
+
+
+### Possível nova estrutura de pasta
+
+```
+src\modules\manga\
+├── chapter\
+│   ├── chapter.controller.ts
+│   ├── chapter.service.ts
+│   ├── chapter.repository.ts
+│   ├── chapter.entity.ts
+│   └── page.entity.ts
+├── social\             ← comment, rating, favorite
+├── history\            ← reading-history
+└── manga.entity.ts     ← core
+```

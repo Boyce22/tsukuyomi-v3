@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { updateUserSchema } from './update-user.schema';
+import { updateUserSchema } from '@/modules/user/schemas/update-user.schema';
 
 export const patchUserSchema = updateUserSchema.partial();
 

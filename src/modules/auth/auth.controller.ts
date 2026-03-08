@@ -1,10 +1,9 @@
-// src/modules/auth/auth.controller.ts
 import { Request, Response, NextFunction, Router } from 'express';
-import { AuthService } from './auth.service';
-import { registerSchema } from './dtos/register.dto';
-import { loginSchema } from './dtos/login.dto';
-import { refreshTokenSchema } from './dtos/refresh-token.dto';
-import { authenticate } from './jwt.middleware';
+import { AuthService } from '@/modules/auth/auth.service';
+import { registerSchema } from '@/modules/auth/dtos/register.dto';
+import { loginSchema } from '@/modules/auth/dtos/login.dto';
+import { refreshTokenSchema } from '@/modules/auth/dtos/refresh-token.dto';
+import { authenticate } from '@/modules/auth/jwt.middleware';
 import { validateDto } from '@/shared/utils/validate-dto';
 
 export class AuthController {

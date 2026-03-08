@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '@/modules/user/entities/user.entity';
-import { AuthService } from './auth.service';
+import { AuthService } from '@/modules/auth/auth.service';
 import { Roles } from '@/shared/security/roles.enum';
 import { ForbiddenError, UnauthorizedError } from '@errors';
 

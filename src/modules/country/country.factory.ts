@@ -2,14 +2,14 @@ import pino from 'pino';
 
 import { AppDataSource } from '@config';
 
-import { City } from './entities/city.entity';
-import { State } from './entities/state.entity';
-import { Country } from './entities/country.entity';
+import { City } from '@/modules/country/entities/city.entity';
+import { State } from '@/modules/country/entities/state.entity';
+import { Country } from '@/modules/country/entities/country.entity';
 
-import { CountryService } from './country.service';
+import { CountryService } from '@/modules/country/country.service';
 
-import { CountryController } from './country.controller';
-import { CountryRepository } from './country.repository';
+import { CountryController } from '@/modules/country/country.controller';
+import { CountryRepository } from '@/modules/country/country.repository';
 
 const logger = pino({ name: 'country-module' });
 

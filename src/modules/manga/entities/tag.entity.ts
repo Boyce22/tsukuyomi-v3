@@ -13,7 +13,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 
-import { Manga } from './manga.entity';
+import { Manga } from '@/modules/manga/entities/manga.entity';
 import { TagType } from '@/shared/enums/tag-type';
 
 @Entity('tags')

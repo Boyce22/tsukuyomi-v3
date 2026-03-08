@@ -12,8 +12,16 @@
       "@utils": ["./src/shared/utils/index.ts"],
       "@middlewares": ["./src/shared/middlewares/index.ts"],
       "@errors": ["./src/shared/errors/index.ts"],
+      "@security": ["./src/shared/security/index.ts"],
+
+      "@enums": ["./src/shared/enums/index.ts"],
+      "@interfaces": ["./src/shared/interfaces/index.ts"],
+      "@types": ["./src/shared/types/index.ts"],
+      "@storage": ["./src/shared/storage/index.ts"],
+
       "@/modules/*": ["./src/modules/*"],
-      "@/shared/*": ["./src/shared/*"]
+      "@/shared/*": ["./src/shared/*"],
+      "@/database/*": ["./src/database/*"]
     },
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",

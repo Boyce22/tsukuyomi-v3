@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { createUserSchema } from './create-user.schema';
+import { createUserSchema } from '@/modules/user/schemas/create-user.schema';
 
 const addressSchema = z
   .object({

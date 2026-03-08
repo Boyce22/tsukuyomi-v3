@@ -1,8 +1,7 @@
 import { Logger } from 'pino';
-import { CountryRepository } from './country.repository';
-import { QueryCountriesInput } from './schemas/query-countries.schema';
+import { CountryRepository } from '@/modules/country/country.repository';
+import { QueryCountriesInput } from '@/modules/country/schemas/query-countries.schema';
 import { BadRequestError, NotFoundError } from '@errors';
-
 
 interface AddressInput {
   countryId?: number;

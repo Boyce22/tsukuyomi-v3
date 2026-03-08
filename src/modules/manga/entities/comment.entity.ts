@@ -14,8 +14,8 @@ import {
   TreeParent,
   TreeChildren,
 } from 'typeorm';
-import { Manga } from './manga.entity';
-import { Chapter } from './chapter.entity';
+import { Manga } from '@/modules/manga/entities/manga.entity';
+import { Chapter } from '@/modules/manga/entities/chapter.entity';
 
 @Entity('comments')
 @Tree('closure-table')

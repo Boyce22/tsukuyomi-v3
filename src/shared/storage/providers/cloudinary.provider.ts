@@ -1,6 +1,7 @@
 import { env } from '@config';
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
-import { IStorageProvider, UploadOptions, UploadResult } from './storage.interface';
+import { v2 as cloudinary } from 'cloudinary';
+
+import { IStorageProvider, UploadOptions, UploadResult } from '../interfaces/storage.interface';
 
 /**
  * Cloudinary storage provider implementation

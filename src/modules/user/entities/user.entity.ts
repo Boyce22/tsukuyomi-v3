@@ -39,7 +39,7 @@ export class User {
   password!: string; //ok
 
   @Column({ type: 'text', nullable: true })
-  biography?: string;  //ok
+  biography?: string; //ok
 
   @Column({ type: 'date', nullable: true })
   birthDate?: Date; //ok
@@ -71,7 +71,6 @@ export class User {
   @Column({ type: 'timestamptz', nullable: true })
   resetPasswordExpires?: Date;
 
-
   @Column({ type: 'text', nullable: true, select: false })
   refreshToken?: string; // ok
 
@@ -94,7 +93,7 @@ export class User {
   deletedAt?: Date; //ok
 
   @Column({ type: 'timestamptz', nullable: true })
-  lastLoginAt?: Date; 
+  lastLoginAt?: Date;
 
   // Statistics
   @Column({ type: 'int', default: 0 })

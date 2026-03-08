@@ -1,12 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  Index,
-  JoinColumn
-} from 'typeorm';
-import { Country } from './country.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, JoinColumn } from 'typeorm';
+import { Country } from '@/modules/country/entities/country.entity';
 
 @Entity('timezones')
 @Index(['zoneName', 'countryId'], { unique: true })
@@ -37,7 +30,7 @@ export class TimeZone {
   countryId!: number;
 
   @ManyToOne(() => Country, (country) => country.timeZones, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'countryId' })
   country!: Country;

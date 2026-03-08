@@ -4,7 +4,7 @@ import { Server as HttpServer } from 'http';
 
 import { logger } from '@utils';
 import { AppDataSource, env } from '@config';
-// import { seedLocations } from './shared/seed/seed-locations';
+// import { seedLocations } from '@/shared/seed/seed-locations';
 
 class Server {
   private readonly port: number;

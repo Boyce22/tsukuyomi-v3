@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index } from "typeorm";
-import { State } from "./state.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index } from 'typeorm';
+import { State } from '@/modules/country/entities/state.entity';
 
-@Entity("cities")
+@Entity('cities')
 export class City {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -10,15 +10,15 @@ export class City {
   @Index()
   name!: string;
 
-  @ManyToOne(() => State, state => state.cities, { onDelete: "CASCADE" })
+  @ManyToOne(() => State, (state) => state.cities, { onDelete: 'CASCADE' })
   state!: State;
 
   @Column()
   stateId!: number;
 
-  @Column({ type: "decimal", nullable: true })
+  @Column({ type: 'decimal', nullable: true })
   latitude!: number;
 
-  @Column({ type: "decimal", nullable: true })
+  @Column({ type: 'decimal', nullable: true })
   longitude!: number;
 }
