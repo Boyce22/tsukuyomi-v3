@@ -25,7 +25,7 @@ export const UPLOAD_MIDDLEWARE = Object.freeze({
     allowedMimes: ALLOWED_IMAGES,
     maxSize: UPLOAD_LIMITS.MANGA_PAGE,
     fieldName: 'pages',
-    maxFiles: 50,
+    maxFiles: 150,
     useDisk: true,
   }),
 });
