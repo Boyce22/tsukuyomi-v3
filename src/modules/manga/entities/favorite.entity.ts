@@ -1,7 +1,7 @@
 import { UUID } from '@/shared/utils/uuid';
 import { User } from '@/modules/user/entities/user.entity';
 import { Entity, ManyToOne, CreateDateColumn, PrimaryColumn, Index, Column } from 'typeorm';
-import { Manga } from './manga.entity';
+import { Manga } from '@/modules/manga/entities/manga.entity';
 
 @Entity('favorites')
 @Index(['userId', 'mangaId'], { unique: true })

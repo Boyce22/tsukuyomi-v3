@@ -1,9 +1,9 @@
 import { UUID } from '@/shared/utils/uuid';
 
 import { Entity, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, PrimaryColumn, Index } from 'typeorm';
-import { Manga } from './manga.entity';
-import { Chapter } from './chapter.entity';
-import { Page } from './page.entity';
+import { Manga } from '@/modules/manga/entities/manga.entity';
+import { Chapter } from '@/modules/manga/entities/chapter.entity';
+import { Page } from '@/modules/manga/entities/page.entity';
 
 import { User } from '@/modules/user/entities/user.entity';
 import { HistoryStatus } from '@/shared/enums/history-status';

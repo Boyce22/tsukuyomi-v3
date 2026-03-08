@@ -1,12 +1,23 @@
+import path from 'path';
 import bcrypt from 'bcryptjs';
 import { Logger } from 'pino';
-import { UserRepository } from './user.repository';
-import { CreateUserInput, UpdateUserInput, PatchUserInput, ChangePasswordInput, QueryUsersInput } from './schemas';
-import { toUserResponse } from '../../shared/helpers/user-response.helper';
+
+import { UserRepository } from '@/modules/user/user.repository';
+import {
+  CreateUserInput,
+  UpdateUserInput,
+  PatchUserInput,
+  ChangePasswordInput,
+  QueryUsersInput,
+} from '@/modules/user/schemas';
+import { UserResponse } from '@/modules/user/dtos/user-response.dto';
+import { User } from '@/modules/user/entities/user.entity';
+
 import { PaginatedResponse } from '@/shared/interfaces/api-response.interface';
-import { UserResponse } from './dtos/user-response.dto';
-import { User } from './entities/user.entity';
+
 import { BadRequestError, ConflictError, NotFoundError } from '@errors';
+import { toUserResponse } from '@/modules/user/helpers/user-response.helper';
+import { getStorageProvider } from '@/shared/storage/storage.factory';
 
 export class UserService {
   private static readonly SALT_ROUNDS = 12;
@@ -38,6 +49,72 @@ export class UserService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  async updateProfilePicture(userId: string, file: Express.Multer.File): Promise<string> {
+    const user = await this.findUserOrFail(userId);
+
+    // if (user.profilePictureUrl) {
+    //   await this.deleteOldImage(user.profilePictureUrl);
+    // } // manter na base por conta de auditória e rastreabilidade em casos que o usuário não cumpra com as regras da aplicação.
+
+    const storage = getStorageProvider();
+
+    const result = await storage.upload(file.buffer, {
+      folder: `profile-picture/${userId}`,
+      filename: `${Date.now()}${path.extname(file.originalname)}`,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      quality: 85,
+    });
+
+    await this.userRepository.updateProfilePicture(userId, result.url);
+
+    this.logger.info({ userId, url: result.url }, 'Profile picture updated');
+
+    return result.url;
+  }
+
+  async updateBanner(userId: string, file: Express.Multer.File): Promise<string> {
+    const user = await this.findUserOrFail(userId);
+
+    // if (user.bannerUrl) {
+    //   await this.deleteOldImage(user.bannerUrl);
+    // }  // manter na base por conta de auditória e rastreabilidade em casos que o usuário não cumpra com as regras da aplicação.
+
+    const storage = getStorageProvider();
+
+    const result = await storage.upload(file.buffer, {
+      folder: `banners/${userId}`,
+      filename: `${Date.now()}${path.extname(file.originalname)}`,
+      maxWidth: 2560,
+      maxHeight: 1440,
+      quality: 90,
+    });
+
+    await this.userRepository.updateBanner(userId, result.url);
+
+    this.logger.info({ userId, url: result.url }, 'Banner updated');
+    return result.url;
+  }
+
+  private async deleteOldImage(imageUrl: string): Promise<void> {
+    try {
+      const storage = getStorageProvider();
+
+      // Extrai publicId da URL
+      // https://f000.backblazeb2.com/file/bucket-name/profile-pictures/user-123.jpg
+      const urlParts = imageUrl.split('/file/');
+      if (urlParts.length === 2) {
+        const pathParts = urlParts[1].split('/');
+        pathParts.shift(); // Remove bucket name
+        const publicId = pathParts.join('/');
+
+        await storage.delete(publicId);
+      }
+    } catch (error) {
+      this.logger.warn({ imageUrl, error }, 'Failed to delete old image');
+    }
   }
 
   async createUser(input: CreateUserInput): Promise<UserResponse> {

@@ -10,7 +10,7 @@ import {
   Index,
   DeleteDateColumn,
 } from 'typeorm';
-import { Chapter } from './chapter.entity';
+import { Chapter } from '@/modules/manga/entities/chapter.entity';
 
 @Entity('pages')
 @Index(['chapterId', 'number'])
@@ -76,11 +76,11 @@ export class Page {
   createdBy?: User;
 
   @Column({ type: 'uuid', nullable: true })
-  createdById?: string; 
+  createdById?: string;
 
   @ManyToOne(() => User, { nullable: true })
   updatedBy?: User;
 
   @Column({ type: 'uuid', nullable: true })
-  updatedById?: string; 
+  updatedById?: string;
 }

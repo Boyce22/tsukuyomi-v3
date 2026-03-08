@@ -1,5 +1,5 @@
-import { State } from './state.entity';
-import { TimeZone } from './time-zone.entity';
+import { State } from '@/modules/country/entities/state.entity';
+import { TimeZone } from '@/modules/country/entities/time-zone.entity';
 
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
 

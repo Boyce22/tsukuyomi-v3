@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { passwordSchema } from './create-user.schema';
+import { passwordSchema } from '@/modules/user/schemas/create-user.schema';
 
 export const changePasswordSchema = z
   .object({

@@ -1,11 +1,24 @@
+import { Roles } from '@/shared/security';
+import { getAuthUser, validateDto } from '@utils';
+
+import { BadRequestError } from '@errors';
+
 import { Request, Response, NextFunction, Router } from 'express';
-import { UserService } from './user.service';
-import { Roles } from '@/shared/security/roles.enum';
-import { validateDto } from '@/shared/utils/validate-dto';
-import { createUserSchema, patchUserSchema, changePasswordSchema, queryUsersSchema, updateUserSchema } from './schemas';
-import { authenticate, authorize } from '../auth/jwt.middleware';
-import { getAuthUser } from '@/shared/utils/get-authenticated-user';
-import { CountryService } from '../country/country.service';
+
+import { UserService } from '@/modules/user/user.service';
+
+import {
+  createUserSchema,
+  patchUserSchema,
+  changePasswordSchema,
+  queryUsersSchema,
+  updateUserSchema,
+} from '@/modules/user/schemas';
+import { authenticate, authorize } from '@/modules/auth/jwt.middleware';
+
+import { CountryService } from '@/modules/country/country.service';
+
+import { UPLOAD_MIDDLEWARE } from '@/shared/storage/upload/upload.config';
 
 export class UserController {
   public router: Router;
@@ -20,11 +33,19 @@ export class UserController {
   }
 
   private initializeRoutes(): void {
-    // Rotas do usuário autenticado
     this.router.get('/me', authenticate, this.getMe.bind(this));
     this.router.put('/me', authenticate, this.updateMe.bind(this));
     this.router.patch('/me', authenticate, this.patchMe.bind(this));
     this.router.post('/me/change-password', authenticate, this.changePassword.bind(this));
+
+    this.router.post(
+      '/me/profile-picture',
+      authenticate,
+      UPLOAD_MIDDLEWARE.PROFILE_PICTURE,
+      this.changeProfilePicture.bind(this),
+    );
+
+    this.router.post('/me/banner', authenticate, UPLOAD_MIDDLEWARE.BANNER, this.changeBanner.bind(this));
 
     // Rotas públicas e listagem
     this.router.post('/', this.createUser.bind(this));
@@ -74,6 +95,26 @@ export class UserController {
     }
   }
 
+  async changeProfilePicture(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) throw new BadRequestError('No file provided');
+      const profilePictureUrl = await this.userService.updateProfilePicture(getAuthUser(req).id, req.file);
+      res.json({ profilePictureUrl });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async changeBanner(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) throw new BadRequestError('No file provided');
+      const bannerUrl = await this.userService.updateBanner(getAuthUser(req).id, req.file);
+      res.json({ bannerUrl });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = validateDto(changePasswordSchema, req.body);
@@ -96,7 +137,7 @@ export class UserController {
 
   async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const user = await this.userService.getUserById(req.params.id);
+      const user = await this.userService.getUserById(req.params.id as string);
       res.json(user);
     } catch (error) {
       next(error);
@@ -119,7 +160,7 @@ export class UserController {
       const { address: addressIds, ...userData } = data;
 
       const address = await this.countryService.validateAndBuildAddress(addressIds);
-      const user = await this.userService.patchUserById(req.params.id, userData, address);
+      const user = await this.userService.patchUserById(req.params.id as string, userData, address);
 
       res.json(user);
     } catch (error) {
@@ -129,7 +170,7 @@ export class UserController {
 
   async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      await this.userService.softDeleteUserById(req.params.id);
+      await this.userService.softDeleteUserById(req.params.id as string);
       res.status(204).send();
     } catch (error) {
       next(error);
@@ -138,7 +179,7 @@ export class UserController {
 
   async verifyUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const user = await this.userService.verifyUser(req.params.id);
+      const user = await this.userService.verifyUser(req.params.id as string);
       res.json(user);
     } catch (error) {
       next(error);

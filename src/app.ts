@@ -38,7 +38,7 @@ class App {
     this.application.use(
       helmet({
         contentSecurityPolicy: env.NODE_ENV === 'production',
-      })
+      }),
     );
 
     this.application.use(
@@ -46,7 +46,7 @@ class App {
         origin: env.CORS_ORIGIN || '*',
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-      })
+      }),
     );
 
     this.application.use(compression());

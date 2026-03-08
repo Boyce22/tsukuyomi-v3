@@ -11,9 +11,9 @@ import {
   Index,
   DeleteDateColumn,
 } from 'typeorm';
-import { Manga } from './manga.entity';
-import { Page } from './page.entity';
-import { Comment } from './comment.entity';
+import { Manga } from '@/modules/manga/entities/manga.entity';
+import { Page } from '@/modules/manga/entities/page.entity';
+import { Comment } from '@/modules/manga/entities/comment.entity';
 
 @Entity('chapters')
 @Index(['mangaId', 'number'], { unique: true })

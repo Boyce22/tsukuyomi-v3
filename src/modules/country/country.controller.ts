@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import { CountryService } from './country.service';
+import { CountryService } from '@/modules/country/country.service';
 import { validateDto } from '@/shared/utils/validate-dto';
-import { queryCountriesSchema } from './schemas/query-countries.schema';
+import { queryCountriesSchema } from '@/modules/country/schemas/query-countries.schema';
 
 export class CountryController {
   public router: Router;
@@ -32,7 +32,7 @@ export class CountryController {
 
   async getCountryByIso(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const country = await this.countryService.getCountryByIso(req.params.iso);
+      const country = await this.countryService.getCountryByIso(req.params.iso as string);
       res.json(country);
     } catch (error) {
       next(error);

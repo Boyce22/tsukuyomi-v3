@@ -1,8 +1,8 @@
 import { Repository } from 'typeorm';
-import { Country } from './entities/country.entity';
-import { State } from './entities/state.entity';
-import { City } from './entities/city.entity';
-import { QueryCountriesInput } from './schemas/query-countries.schema';
+import { Country } from '@/modules/country/entities/country.entity';
+import { State } from '@/modules/country/entities/state.entity';
+import { City } from '@/modules/country/entities/city.entity';
+import { QueryCountriesInput } from '@/modules/country/schemas/query-countries.schema';
 
 export class CountryRepository {
   constructor(

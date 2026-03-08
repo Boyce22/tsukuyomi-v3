@@ -1,9 +1,9 @@
 import { env } from '@config';
-import { S3Provider } from './s3.provider';
-import { BackblazeProvider } from './backblaze.provider';
-import { CloudinaryProvider } from './cloudinary.provider';
+import { IStorageProvider } from './interfaces/storage.interface';
 
-import { IStorageProvider } from './storage.interface';
+import { S3Provider } from './providers/s3.provider';
+import { CloudinaryProvider } from './providers/cloudinary.provider';
+import { BackblazeProvider } from './providers/backblaze.provider';
 
 export type StorageProviderType = 'cloudinary' | 's3' | 'backblaze';
 

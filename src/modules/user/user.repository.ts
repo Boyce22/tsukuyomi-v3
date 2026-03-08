@@ -1,7 +1,7 @@
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { User } from './entities/user.entity';
+import { User } from '@/modules/user/entities/user.entity';
 
-import { QueryUsersInput, CreateUserInput, UpdateUserInput, PatchUserInput } from './schemas';
+import { QueryUsersInput, CreateUserInput, UpdateUserInput, PatchUserInput } from '@/modules/user/schemas';
 import { Roles } from '@/shared/security/roles.enum';
 import { NotFoundError } from '@errors';
 
@@ -87,6 +87,14 @@ export class UserRepository {
     user.emailVerifiedAt = new Date();
     await this.repository.save(user);
     return user;
+  }
+
+  async updateProfilePicture(id: string, profilePictureUrl: string): Promise<void> {
+    await this.repository.update(id, { profilePictureUrl });
+  }
+
+  async updateBanner(id: string, bannerUrl: string): Promise<void> {
+    await this.repository.update(id, { bannerUrl });
   }
 
   private applySearchFilter(qb: SelectQueryBuilder<User>, search?: string): void {

@@ -99,7 +99,10 @@ class LoggerService {
 }
 
 export class Logger {
-  constructor(private logger: PinoLogger, context?: string | LoggerContext) {
+  constructor(
+    private logger: PinoLogger,
+    context?: string | LoggerContext,
+  ) {
     if (context) {
       const ctx = typeof context === 'string' ? { context } : context;
       this.logger = logger.child(ctx);

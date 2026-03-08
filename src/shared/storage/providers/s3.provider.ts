@@ -1,8 +1,9 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } from '@aws-sdk/client-s3';
-import { IStorageProvider, UploadOptions, UploadResult } from './storage.interface';
+
 import { env } from '@config';
 import crypto from 'crypto';
 import sharp from 'sharp';
+import { IStorageProvider, UploadOptions, UploadResult } from '../interfaces/storage.interface';
 
 /**
  * AWS S3 storage provider implementation

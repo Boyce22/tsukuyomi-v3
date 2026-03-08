@@ -15,11 +15,11 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 
-import { Tag } from './tag.entity';
-import { Chapter } from './chapter.entity';
-import { Comment } from './comment.entity';
-import { Rating } from './rating.entity';
-import { Favorite } from './favorite.entity';
+import { Tag } from '@/modules/manga/entities/tag.entity';
+import { Chapter } from '@/modules/manga/entities/chapter.entity';
+import { Comment } from '@/modules/manga/entities/comment.entity';
+import { Rating } from '@/modules/manga/entities/rating.entity';
+import { Favorite } from '@/modules/manga/entities/favorite.entity';
 
 @Entity('mangas')
 export class Manga {
