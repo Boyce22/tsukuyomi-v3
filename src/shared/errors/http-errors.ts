@@ -53,3 +53,10 @@ export class ValidationError extends AppError {
     super('Validation failed', 400, errors);
   }
 }
+
+export class RouteNotFound extends AppError {
+  constructor(method: string, path: string) {
+    const message = `Route ${method} ${path} not found`;
+    super(message, 404);
+  }
+}
