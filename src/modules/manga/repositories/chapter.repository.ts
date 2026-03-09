@@ -49,11 +49,11 @@ export class ChapterRepository {
     return count > 0;
   }
 
-  async increment(id: string, field: 'pageCount', value: number): Promise<void> {
+  async increment(id: string, field: 'pageCount' | 'commentCount', value: number): Promise<void> {
     await this.repository.increment({ id }, field, value);
   }
 
-  async decrement(id: string, field: 'pageCount', value: number): Promise<void> {
+  async decrement(id: string, field: 'pageCount' | 'commentCount', value: number): Promise<void> {
     await this.repository.decrement({ id }, field, value);
   }
 
