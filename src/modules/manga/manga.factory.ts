@@ -35,10 +35,7 @@ const mangaRepository = new MangaRepository(
 
 const chapterRepository = new ChapterRepository(AppDataSource.getRepository(Chapter));
 
-const pageRepository = new PageRepository(
-  AppDataSource.getRepository(Page),
-  AppDataSource.getRepository(Chapter),
-);
+const pageRepository = new PageRepository(AppDataSource.getRepository(Page), AppDataSource.getRepository(Chapter));
 
 const tagRepository = new TagRepository(AppDataSource.getRepository(Tag));
 

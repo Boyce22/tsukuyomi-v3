@@ -1,14 +1,7 @@
 import { UUID } from '@/shared/utils/uuid';
 import { User } from '@/modules/user/entities/user.entity';
 import { Manga } from '@/modules/manga/entities/manga.entity';
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-  PrimaryColumn,
-  Index,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, CreateDateColumn, PrimaryColumn, Index } from 'typeorm';
 
 export enum ReportReason {
   INAPPROPRIATE_CONTENT = 'INAPPROPRIATE_CONTENT',

@@ -14,10 +14,7 @@ export class ChapterRepository {
     return this.repository.findOne({ where: { mangaId, number } });
   }
 
-  async findAllByManga(
-    mangaId: string,
-    query: QueryChaptersInput,
-  ): Promise<{ data: Chapter[]; total: number }> {
+  async findAllByManga(mangaId: string, query: QueryChaptersInput): Promise<{ data: Chapter[]; total: number }> {
     const { page, limit, order } = query;
     const [data, total] = await this.repository.findAndCount({
       where: { mangaId },
@@ -28,9 +25,7 @@ export class ChapterRepository {
     return { data, total };
   }
 
-  async create(
-    input: CreateChapterInput & { slug: string; createdById?: string },
-  ): Promise<Chapter> {
+  async create(input: CreateChapterInput & { slug: string; createdById?: string }): Promise<Chapter> {
     const chapter = this.repository.create(input as Partial<Chapter>);
     await this.repository.save(chapter);
     return (await this.findById(chapter.id))!;

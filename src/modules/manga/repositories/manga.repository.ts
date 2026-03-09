@@ -46,9 +46,7 @@ export class MangaRepository {
     return { data, total };
   }
 
-  async create(
-    input: CreateMangaInput & { slug: string; createdById?: string; coverUrl?: string },
-  ): Promise<Manga> {
+  async create(input: CreateMangaInput & { slug: string; createdById?: string; coverUrl?: string }): Promise<Manga> {
     const { tagIds, ...data } = input;
     const manga = this.repository.create(data as Partial<Manga>);
 
@@ -93,12 +91,7 @@ export class MangaRepository {
     await this.repository.update(id, { bannerUrl });
   }
 
-  async createReport(
-    mangaId: string,
-    userId: string,
-    reason: string,
-    description?: string,
-  ): Promise<void> {
+  async createReport(mangaId: string, userId: string, reason: string, description?: string): Promise<void> {
     const report = this.reportRepository.create({
       mangaId,
       userId,

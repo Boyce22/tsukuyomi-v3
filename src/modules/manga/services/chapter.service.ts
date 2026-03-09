@@ -2,11 +2,7 @@ import { Logger } from 'pino';
 
 import { ChapterRepository } from '@/modules/manga/repositories/chapter.repository';
 import { MangaRepository } from '@/modules/manga/repositories/manga.repository';
-import {
-  CreateChapterInput,
-  PatchChapterInput,
-  QueryChaptersInput,
-} from '@/modules/manga/schemas';
+import { CreateChapterInput, PatchChapterInput, QueryChaptersInput } from '@/modules/manga/schemas';
 import { ChapterResponse } from '@/modules/manga/dtos/chapter-response.dto';
 import { Chapter } from '@/modules/manga/entities/chapter.entity';
 
@@ -21,10 +17,7 @@ export class ChapterService {
     private readonly logger: Logger,
   ) {}
 
-  async getChapters(
-    mangaId: string,
-    query: QueryChaptersInput,
-  ): Promise<PaginatedResponse<ChapterResponse>> {
+  async getChapters(mangaId: string, query: QueryChaptersInput): Promise<PaginatedResponse<ChapterResponse>> {
     const manga = await this.mangaRepository.findById(mangaId);
     if (!manga) throw new NotFoundError('Manga not found');
 
@@ -60,11 +53,7 @@ export class ChapterService {
     return toChapterResponse(chapter);
   }
 
-  async patchChapter(
-    id: string,
-    input: PatchChapterInput,
-    updatedById?: string,
-  ): Promise<ChapterResponse> {
+  async patchChapter(id: string, input: PatchChapterInput, updatedById?: string): Promise<ChapterResponse> {
     const chapter = await this.chapterRepository.findById(id);
     if (!chapter) throw new NotFoundError('Chapter not found');
 

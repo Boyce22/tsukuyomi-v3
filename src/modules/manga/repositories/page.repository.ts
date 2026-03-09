@@ -26,10 +26,7 @@ export class PageRepository {
     return this.repository.findOne({ where: { id } });
   }
 
-  async findByChapter(
-    chapterId: string,
-    query: QueryPagesInput,
-  ): Promise<{ data: Page[]; total: number }> {
+  async findByChapter(chapterId: string, query: QueryPagesInput): Promise<{ data: Page[]; total: number }> {
     const { page, limit } = query;
     const [data, total] = await this.repository.findAndCount({
       where: { chapterId },
@@ -50,9 +47,7 @@ export class PageRepository {
   }
 
   async addMany(chapterId: string, pages: NewPageData[]): Promise<Page[]> {
-    const entities = pages.map((p) =>
-      this.repository.create({ ...p, chapterId } as Partial<Page>),
-    );
+    const entities = pages.map((p) => this.repository.create({ ...p, chapterId } as Partial<Page>));
     const saved = await this.repository.save(entities);
     await this.chapterRepository.increment({ id: chapterId }, 'pageCount', pages.length);
     return saved;

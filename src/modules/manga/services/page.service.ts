@@ -1,6 +1,6 @@
-import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
+import AdmZip from 'adm-zip';
 import sharp from 'sharp';
 import { Logger } from 'pino';
 
@@ -17,6 +17,8 @@ import { QualityCompress } from '@/shared/storage/interfaces/compressor.interfac
 
 import { BadRequestError, NotFoundError } from '@errors';
 
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+
 export class PageService {
   private readonly compressor = new ImageCompressionService();
 
@@ -26,10 +28,7 @@ export class PageService {
     private readonly logger: Logger,
   ) {}
 
-  async getPages(
-    chapterId: string,
-    query: QueryPagesInput,
-  ): Promise<PaginatedResponse<PageResponse>> {
+  async getPages(chapterId: string, query: QueryPagesInput): Promise<PaginatedResponse<PageResponse>> {
     const chapter = await this.chapterRepository.findById(chapterId);
     if (!chapter) throw new NotFoundError('Chapter not found');
 
@@ -45,41 +44,27 @@ export class PageService {
     };
   }
 
-  async uploadPages(
-    chapterId: string,
-    files: Express.Multer.File[],
-    createdById?: string,
-  ): Promise<PageResponse[]> {
+  async uploadPagesFromZip(chapterId: string, zipBuffer: Buffer, createdById?: string): Promise<PageResponse[]> {
     const chapter = await this.chapterRepository.findById(chapterId);
     if (!chapter) throw new NotFoundError('Chapter not found');
-    if (!files.length) throw new BadRequestError('No pages provided');
+
+    const entries = extractImageEntries(zipBuffer);
+    if (!entries.length) throw new BadRequestError('No valid image files found in the ZIP');
 
     const storage = getStorageProvider();
     const startNumber = await this.pageRepository.getNextPageNumber(chapterId);
 
     const uploadResults = await Promise.all(
-      files.map(async (file, index) => {
-        const filePath = file.path;
-        if (!filePath) throw new BadRequestError(`Page ${index + 1}: file path not available`);
+      entries.map(async ({ name, buffer: rawBuffer }, index) => {
+        const mime = mimeFromExtension(path.extname(name));
+        const compressed = await this.compressor.compress(rawBuffer, QualityCompress.HIGH, mime);
 
-        let compressedBuffer: Buffer;
-        try {
-          const compressed = await this.compressor.compress(
-            filePath,
-            QualityCompress.HIGH,
-            file.mimetype,
-          );
-          compressedBuffer = compressed.buffer;
-        } finally {
-          await fs.unlink(filePath).catch(() => undefined);
-        }
-
-        const meta = await sharp(compressedBuffer).metadata();
-        const hash = crypto.createHash('sha256').update(compressedBuffer).digest('hex');
-        const ext = path.extname(file.originalname) || '.jpg';
+        const meta = await sharp(compressed.buffer).metadata();
+        const hash = crypto.createHash('sha256').update(compressed.buffer).digest('hex');
+        const ext = path.extname(name);
         const pageNumber = startNumber + index;
 
-        const uploaded = await storage.upload(compressedBuffer, {
+        const uploaded = await storage.upload(compressed.buffer, {
           folder: `mangas/chapters/${chapterId}`,
           filename: `page-${pageNumber}${ext}`,
         });
@@ -90,7 +75,7 @@ export class PageService {
           thumbnailUrl: uploaded.thumbnailUrl,
           width: meta.width,
           height: meta.height,
-          fileSize: compressedBuffer.byteLength,
+          fileSize: compressed.buffer.byteLength,
           format: meta.format ?? ext.replace('.', ''),
           hash,
           createdById,
@@ -99,7 +84,7 @@ export class PageService {
     );
 
     const pages = await this.pageRepository.addMany(chapterId, uploadResults);
-    this.logger.info({ chapterId, count: pages.length }, 'Pages uploaded');
+    this.logger.info({ chapterId, count: pages.length }, 'Pages uploaded from ZIP');
     return pages.map(toPageResponse);
   }
 
@@ -118,6 +103,38 @@ export class PageService {
     await this.pageRepository.softDelete(id);
     this.logger.info({ pageId: id }, 'Page deleted');
   }
+}
+
+function extractImageEntries(zipBuffer: Buffer): { name: string; buffer: Buffer }[] {
+  const zip = new AdmZip(zipBuffer);
+
+  return zip
+    .getEntries()
+    .filter((entry) => {
+      if (entry.isDirectory) return false;
+      const ext = path.extname(entry.entryName).toLowerCase();
+      return IMAGE_EXTENSIONS.has(ext);
+    })
+    .sort((a, b) => naturalSort(a.entryName, b.entryName))
+    .map((entry) => ({
+      name: path.basename(entry.entryName),
+      buffer: entry.getData(),
+    }));
+}
+
+function mimeFromExtension(ext: string): string {
+  const map: Record<string, string> = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.webp': 'image/webp',
+  };
+
+  return map[ext.toLowerCase()] ?? 'image/jpeg';
+}
+
+function naturalSort(a: string, b: string): number {
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 }
 
 export function toPageResponse(page: Page): PageResponse {

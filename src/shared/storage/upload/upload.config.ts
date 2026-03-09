@@ -1,6 +1,6 @@
-import { ALLOWED_IMAGES, UPLOAD_LIMITS } from './upload.constants';
+import { ALLOWED_IMAGES, ALLOWED_ZIP, UPLOAD_LIMITS } from './upload.constants';
 
-import { uploadMiddleware, uploadMultipleMiddleware } from '@middlewares';
+import { uploadMiddleware } from '@middlewares';
 
 export const UPLOAD_MIDDLEWARE = Object.freeze({
   PROFILE_PICTURE: uploadMiddleware({
@@ -21,11 +21,9 @@ export const UPLOAD_MIDDLEWARE = Object.freeze({
     fieldName: 'cover',
   }),
 
-  MANGA_PAGES: uploadMultipleMiddleware({
-    allowedMimes: ALLOWED_IMAGES,
-    maxSize: UPLOAD_LIMITS.MANGA_PAGE,
+  MANGA_PAGES_ZIP: uploadMiddleware({
+    allowedMimes: ALLOWED_ZIP,
+    maxSize: UPLOAD_LIMITS.MANGA_PAGES_ZIP,
     fieldName: 'pages',
-    maxFiles: 150,
-    useDisk: true,
   }),
 });
