@@ -105,6 +105,14 @@ export class MangaRepository {
     return this.reportRepository.findOne({ where: { mangaId, userId } });
   }
 
+  async increment(id: string, field: 'commentCount' | 'viewCount' | 'favoriteCount' | 'ratingCount', value: number): Promise<void> {
+    await this.repository.increment({ id }, field, value);
+  }
+
+  async decrement(id: string, field: 'commentCount' | 'viewCount' | 'favoriteCount' | 'ratingCount', value: number): Promise<void> {
+    await this.repository.decrement({ id }, field, value);
+  }
+
   async slugExists(slug: string): Promise<boolean> {
     const count = await this.repository.count({ where: { slug } });
     return count > 0;

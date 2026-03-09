@@ -25,7 +25,7 @@ export class MangaController {
 
     this.router.post('/:id/report', authenticate, this.reportManga.bind(this));
 
-    this.router.post('/', authenticate, authorize(Roles.ADMIN, Roles.USER), this.createManga.bind(this));
+    this.router.post('/', authenticate, authorize(Roles.ADMIN, Roles.MODERATOR), this.createManga.bind(this));
 
     this.router.patch('/:id', authenticate, authorize(Roles.ADMIN, Roles.MODERATOR), this.patchManga.bind(this));
 
