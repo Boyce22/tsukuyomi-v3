@@ -11,9 +11,9 @@ export class ImageCompressionService implements IImageCompressorService {
     'image/avif': (img, quality) => img.avif({ quality }),
   };
 
-  async compress(path: string, quality: QualityCompress, mime: string): Promise<ImageCompressed> {
+  async compress(source: string | Buffer, quality: QualityCompress, mime: string): Promise<ImageCompressed> {
     try {
-      const image = sharp(path);
+      const image = sharp(source);
       const encoder = this.mimeEncoders[mime];
 
       if (!encoder) {

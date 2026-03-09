@@ -11,14 +11,17 @@ export const createMangaSchema = z.object({
   artist: z.string().max(255).optional(),
   publisher: z.string().max(255).optional(),
   alternativeTitles: z.preprocess(
-    (v) => (typeof v === 'string' ? v.split(',').map((s) => s.trim()).filter(Boolean) : v),
+    (v) =>
+      typeof v === 'string'
+        ? v
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : v,
     z.array(z.string()).optional(),
   ),
   originalLanguage: z.string().max(10).default('ja'),
-  tagIds: z.preprocess(
-    (v) => (typeof v === 'string' ? [v] : v),
-    z.array(z.uuid()).optional(),
-  ),
+  tagIds: z.preprocess((v) => (typeof v === 'string' ? [v] : v), z.array(z.uuid()).optional()),
 });
 
 export type CreateMangaInput = z.infer<typeof createMangaSchema>;

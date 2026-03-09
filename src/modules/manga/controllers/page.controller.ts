@@ -27,17 +27,12 @@ export class PageController {
     this.router.post(
       '/chapter/:chapterId',
       authenticate,
-      authorize(Roles.ADMIN, Roles.MODERATOR),
-      UPLOAD_MIDDLEWARE.MANGA_PAGES,
+      authorize(Roles.ADMIN, Roles.USER),
+      UPLOAD_MIDDLEWARE.MANGA_PAGES_ZIP,
       this.uploadPages.bind(this),
     );
 
-    this.router.patch(
-      '/:id',
-      authenticate,
-      authorize(Roles.ADMIN, Roles.MODERATOR),
-      this.patchPage.bind(this),
-    );
+    this.router.patch('/:id', authenticate, authorize(Roles.ADMIN, Roles.MODERATOR), this.patchPage.bind(this));
 
     // Admin only
     this.router.delete('/:id', authenticate, authorize(Roles.ADMIN), this.deletePage.bind(this));
@@ -55,14 +50,14 @@ export class PageController {
 
   async uploadPages(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const files = req.files as Express.Multer.File[];
-      if (!files?.length) throw new BadRequestError('No pages provided');
+      if (!req.file?.buffer) throw new BadRequestError('No ZIP file provided');
 
-      const pages = await this.pageService.uploadPages(
+      const pages = await this.pageService.uploadPagesFromZip(
         req.params['chapterId'] as string,
-        files,
+        req.file.buffer,
         getAuthUser(req).id,
       );
+
       res.status(201).json({ pages });
     } catch (error) {
       next(error);

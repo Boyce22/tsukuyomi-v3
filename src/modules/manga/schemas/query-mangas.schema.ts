@@ -7,9 +7,7 @@ export const queryMangasSchema = z.object({
   search: z.string().optional(),
   status: z.enum(MangaStatus).optional(),
   isMature: z.coerce.boolean().default(false).optional(),
-  sortBy: z
-    .enum(['title', 'createdAt', 'updatedAt', 'averageRating', 'viewCount'])
-    .default('createdAt'),
+  sortBy: z.enum(['title', 'createdAt', 'updatedAt', 'averageRating', 'viewCount']).default('createdAt'),
   order: z.enum(['ASC', 'DESC']).default('DESC'),
 });
 

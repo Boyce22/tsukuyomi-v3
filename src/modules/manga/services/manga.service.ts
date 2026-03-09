@@ -57,11 +57,7 @@ export class MangaService {
     return toMangaResponse(manga);
   }
 
-  async patchManga(
-    id: string,
-    input: PatchMangaInput,
-    updatedById?: string,
-  ): Promise<MangaResponse> {
+  async patchManga(id: string, input: PatchMangaInput, updatedById?: string): Promise<MangaResponse> {
     const existing = await this.mangaRepository.findById(id);
     if (!existing) throw new NotFoundError('Manga not found');
 

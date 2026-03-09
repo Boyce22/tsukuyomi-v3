@@ -12,5 +12,5 @@ export type ImageCompressed = {
 };
 
 export interface IImageCompressorService {
-  compress(path: string, quality: QualityCompress, originalMimeType: string): Promise<ImageCompressed>;
+  compress(source: string | Buffer, quality: QualityCompress, originalMimeType: string): Promise<ImageCompressed>;
 }
