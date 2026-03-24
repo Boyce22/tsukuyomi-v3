@@ -14,3 +14,14 @@ export * from './query-tags.schema';
 export * from './create-comment.schema';
 export * from './patch-comment.schema';
 export * from './query-comments.schema';
+
+export * from './create-favorite.schema';
+export * from './query-favorites.schema';
+
+export * from './create-rating.schema';
+export * from './patch-rating.schema';
+export * from './query-ratings.schema';
+
+export * from './create-reading-history.schema';
+export * from './patch-reading-history.schema';
+export * from './query-reading-history.schema';
