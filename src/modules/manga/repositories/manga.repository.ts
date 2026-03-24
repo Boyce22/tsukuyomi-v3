@@ -113,6 +113,10 @@ export class MangaRepository {
     await this.repository.decrement({ id }, field, value);
   }
 
+  async updateAverageRating(id: string, averageRating: number): Promise<void> {
+    await this.repository.update(id, { averageRating });
+  }
+
   async slugExists(slug: string): Promise<boolean> {
     const count = await this.repository.count({ where: { slug } });
     return count > 0;

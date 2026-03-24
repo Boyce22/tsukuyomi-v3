@@ -2,7 +2,16 @@ import { Router } from 'express';
 import { userRouter } from '@/modules/user/user.factory';
 import { authRouter } from '@/modules/auth/auth.factory';
 import { countryRouter } from '@/modules/country/country.factory';
-import { mangaRouter, chapterRouter, pageRouter, tagRouter, commentRouter } from '@/modules/manga/manga.factory';
+import {
+  mangaRouter,
+  chapterRouter,
+  pageRouter,
+  tagRouter,
+  commentRouter,
+  favoriteRouter,
+  ratingRouter,
+  readingHistoryRouter,
+} from '@/modules/manga/manga.factory';
 
 const routes = Router();
 
@@ -14,5 +23,8 @@ routes.use('/chapters', chapterRouter);
 routes.use('/pages', pageRouter);
 routes.use('/tags', tagRouter);
 routes.use('/comments', commentRouter);
+routes.use('/favorites', favoriteRouter);
+routes.use('/ratings', ratingRouter);
+routes.use('/reading-history', readingHistoryRouter);
 
 export default routes;
